@@ -26,26 +26,22 @@ def get_people_search_query_results_count(query_json: str) -> Dict[str, Any]:
     import requests
     import os
     import json
-    import logging
-
-    # Set up logging
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    logger = logging.getLogger(__name__)
+    import datetime
 
     # Check if API_KEY is set
     if "API_KEY" not in os.environ or not os.environ["API_KEY"]:
-        logger.error("API_KEY environment variable is not set")
+        print(f"{datetime.datetime.now()} - ERROR - API_KEY environment variable is not set")
         return {"status": "error", "message": "API_KEY environment variable is not set"}
 
     try:
         query = json.loads(query_json)
     except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse query JSON: {e}")
+        print(f"{datetime.datetime.now()} - ERROR - Failed to parse query JSON: {e}")
         return {"status": "error", "message": f"Invalid JSON format: {e}"}
 
     # Check if API_URL is set
     if "API_URL" not in os.environ or not os.environ["API_URL"]:
-        logger.error("API_URL environment variable is not set")
+        print(f"{datetime.datetime.now()} - ERROR - API_URL environment variable is not set")
         return {"status": "error", "message": "API_URL environment variable is not set"}
         
     # Get API URL from environment variable
@@ -55,7 +51,7 @@ def get_people_search_query_results_count(query_json: str) -> Dict[str, Any]:
     # Construct the payload using the provided query
     payload: Dict[str, Any] = {"q": query}
 
-    logger.info(f"Payload: {payload}")
+    print(f"{datetime.datetime.now()} - INFO - Payload: {payload}")
 
     # Get API key from environment variable, fall back to empty string if not available
     api_key = os.environ.get('API_KEY', "")
@@ -71,9 +67,9 @@ def get_people_search_query_results_count(query_json: str) -> Dict[str, Any]:
         # Log the request ID header if present
         request_id = response.headers.get('x-11x-request-id')
         if request_id:
-            logger.info(f"x-11x-request-id: {request_id}")
+            print(f"{datetime.datetime.now()} - INFO - x-11x-request-id: {request_id}")
         else:
-            logger.info("x-11x-request-id header not found in response")
+            print(f"{datetime.datetime.now()} - INFO - x-11x-request-id header not found in response")
             
         response.raise_for_status() # Raises HTTPError for bad responses (4XX or 5XX)
         # The count endpoint likely returns a simple JSON like {"total": 123}
@@ -82,42 +78,42 @@ def get_people_search_query_results_count(query_json: str) -> Dict[str, Any]:
             # Return success status with count in results
             return {"status": "success", "results": {"count": result["total"]}}
         else:
-            logger.error(f"Unexpected response format: {result}")
+            print(f"{datetime.datetime.now()} - ERROR - Unexpected response format: {result}")
             # Return error status due to unexpected format
             return {"status": "error"}
     except requests.exceptions.RequestException as e:
-        logger.error(f"HTTP Request failed: {e}")
+        print(f"{datetime.datetime.now()} - ERROR - HTTP Request failed: {e}")
         # Check if response exists and has headers
         if hasattr(e, 'response') and e.response is not None and hasattr(e.response, 'headers'):
             request_id = e.response.headers.get('x-11x-request-id')
             if request_id:
-                logger.info(f"x-11x-request-id: {request_id}")
+                print(f"{datetime.datetime.now()} - INFO - x-11x-request-id: {request_id}")
         # Return error status
         return {"status": "error"}
     except requests.exceptions.JSONDecodeError as e:
-        logger.error(f"Failed to decode JSON response: {e}")
+        print(f"{datetime.datetime.now()} - ERROR - Failed to decode JSON response: {e}")
         # Ensure response is defined before accessing .text
         response_text = response.text if 'response' in locals() and hasattr(response, 'text') else 'No response object or text'
-        logger.error(f"Response text: {response_text}")
+        print(f"{datetime.datetime.now()} - ERROR - Response text: {response_text}")
         # Return error status
         return {"status": "error"}
 
-# Example usage (optional, for testing)
-if __name__ == "__main__":
-    print("Getting people search query results count...")
-    # Define a sample query as a JSON string
-    sample_query_json = """
-    {
-        "bool": {"should": [{"match": {"job_title": "software engineer"}}]}
-    }
-    """
-    response_data = get_people_search_query_results_count(query_json=sample_query_json)
-    import json
-    print(f"Status: {response_data['status']}")
-    if response_data['status'] == 'success':
-        print("Count:")
-        print(json.dumps(response_data.get('results'), indent=2))
-    elif 'message' in response_data:
-        print(f"Error: {response_data['message']}")
-    else:
-        print("An error occurred during the count retrieval.")
+# # Example usage (optional, for testing)
+# if __name__ == "__main__":
+#     print("Getting people search query results count...")
+#     # Define a sample query as a JSON string
+#     sample_query_json = """
+#     {
+#         "bool": {"should": [{"match": {"job_title": "software engineer"}}]}
+#     }
+#     """
+#     response_data = get_people_search_query_results_count(query_json=sample_query_json)
+#     import json
+#     print(f"Status: {response_data['status']}")
+#     if response_data['status'] == 'success':
+#         print("Count:")
+#         print(json.dumps(response_data.get('results'), indent=2))
+#     elif 'message' in response_data:
+#         print(f"Error: {response_data['message']}")
+#     else:
+#         print("An error occurred during the count retrieval.")
