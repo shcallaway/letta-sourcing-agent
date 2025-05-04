@@ -50,7 +50,7 @@ Before you begin, ensure you have Python and pip installed on your system.
 
 ## Environment Variables
 
-This project requires setting up an environment variable for authentication with the 11x API:
+This project requires setting up environment variables for authentication with the 11x API:
 
 1. **Set the API key environment variable:**
 
@@ -58,12 +58,19 @@ This project requires setting up an environment variable for authentication with
    export API_KEY="<your-api-key>"
    ```
 
-   This sets the API key for the current terminal session only. To make it persistent:
+2. **Set the API URL environment variable:**
+
+   ```bash
+   export API_URL="<api-url>"
+   ```
+
+   These environment variables are set for the current terminal session only. To make them persistent:
 
    - For Bash users (add to `~/.bashrc` or `~/.bash_profile`):
 
      ```bash
      echo 'export API_KEY="<your-api-key>"' >> ~/.bash_profile
+     echo 'export API_URL="<api-url>"' >> ~/.bash_profile
      source ~/.bash_profile
      ```
 
@@ -71,12 +78,14 @@ This project requires setting up an environment variable for authentication with
 
      ```bash
      echo 'export API_KEY="<your-api-key>"' >> ~/.zshrc
+     echo 'export API_URL="<api-url>"' >> ~/.zshrc
      source ~/.zshrc
      ```
 
    - For Windows users (PowerShell):
      ```powershell
      [Environment]::SetEnvironmentVariable("API_KEY", "<your-api-key>", "User")
+     [Environment]::SetEnvironmentVariable("API_URL", "<api-url>", "User")
      ```
 
 ## Running a Tool Script
